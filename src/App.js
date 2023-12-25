@@ -34,14 +34,14 @@ function App() {
         <div className="flex flex-col items-center justify-center gap-2">
           <label htmlFor="upload-button">
             {image.preview ? (
-              <img src={image.preview} alt="dummy" className="rounded-md" width="300" height="300" />
+              <img src={image.preview} alt="dummy" className="rounded-md" width="250" height="250" />
             ) : (
               <>
                 <span className="fa-stack fa-2x mt-3 mb-2">
                   <i className="fas fa-circle fa-stack-2x" />
                   <i className="fas fa-store fa-stack-1x fa-inverse" />
                 </span>
-                <h5 className="flex bg-neutral-400/50 py-2 px-4 rounded-md h-[300px] w-[300px] items-center justify-center">
+                <h5 className="flex bg-neutral-400/50 py-2 px-4 rounded-md h-[250px] w-[250px] items-center justify-center">
                   Upload your photo
                 </h5>
               </>
