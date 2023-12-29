@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
-const ROUTE = "http://localhost:4000/upload";
+const ROUTE = "https://student-registration-m28k.onrender.com/upload";
 function App() {
   const [data, setData] = useState(null);
   const [get, setGet] = useState(false);
