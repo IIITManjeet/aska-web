@@ -1,40 +1,94 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
+import axios from "axios";
+const ROUTE = "http://localhost:4000/upload";
 function App() {
-  const [image, setImage] = useState({ preview: "", raw: "" });
-
+  const [data, setData] = useState(null);
+  const [get, setGet] = useState(false);
+  const [aadhar, setAadhar] = useState();
+  const [birth, setBirth] = useState();
+  const [tenth, setTenth] = useState();
+  const [image, setImage] = useState();
   const handleChange = (e) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+    console.log(data, "data");
+  };
+  const handleImage = (e) => {
     if (e.target.files.length) {
       setImage({
-        preview: URL.createObjectURL(e.target.files[0]),
+        preview: URL?.createObjectURL(e.target.files[0]),
         raw: e.target.files[0],
       });
     }
   };
+
+  const handleAadhar = (e) => {
+    setAadhar(e.target.files[0]);
+  };
+
+  const handleBirth = (e) => {
+    setBirth(e.target.files[0]);
+  };
+
+  const handleSubmit = (e) => {
+    console.log(data);
+    axios
+      .post(
+        "https://sheet.best/api/sheets/4755dee2-1530-4ec9-b238-3cb492c9cf8a",
+        data
+      )
+      .then((res) => {
+        console.log(res);
+        setData(null);
+        setAadhar(null);
+        setBirth(null);
+        setGet(false);
+        setImage(null);
+        setTenth(null);
+      });
+  };
+  const handleTenth = (e) => {
+    setTenth(e.target.files[0]);
+  };
   const handleUpload = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("image", image.raw);
-
-    await fetch("YOUR_URL", {
-      method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      body: formData,
-    });
+    formData.append("image", image?.raw);
+    formData.append("aadhar", aadhar);
+    formData.append("tenth", tenth);
+    formData.append("birth", birth);
+    console.log(...formData);
+    axios
+      .post(ROUTE, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        setData({ ...data, ...res?.data });
+        setGet(true);
+      });
   };
 
   return (
-    <div className="min-h-screen w-auto px-12 py-4 flex font-mono">
-      <form className="rounded-md w-full shadow-lg shadow-black/50 m-auto p-4 gap-4 justify-center items-left flex-col flex">
+    <div className="min-h-screen w-auto flex flex-col font-mono gap-5">
+      <form
+        action="/upload"
+        method="post"
+        enctype="multipart/form-data"
+        className="rounded-md w-full m-auto p-4 gap-4 justify-center items-left flex-col flex"
+      >
         <h1 className="text-center text-[22px] font-bold">
-          Aska Registration Form
+          Student Registration Form
         </h1>
         <div className="flex flex-col items-center justify-center gap-2">
           <label htmlFor="upload-button">
-            {image.preview ? (
-              <img src={image.preview} alt="dummy" className="rounded-md" width="250" height="250" />
+            {image?.preview ? (
+              <img
+                src={image?.preview}
+                alt="dummy"
+                className="rounded-md"
+                width="250"
+                height="250"
+              />
             ) : (
               <>
                 <span className="fa-stack fa-2x mt-3 mb-2">
@@ -49,23 +103,19 @@ function App() {
           </label>
           <input
             type="file"
+            name="image"
             id="upload-button"
             style={{ display: "none" }}
-            onChange={handleChange}
+            onChange={handleImage}
           />
           <br />
-          <button
-            onClick={handleUpload}
-            className="flex justify-center items-center bg-slate-500/30 px-6 py-2 cursor-pointer rounded-lg m-auto"
-          >
-            Upload
-          </button>
         </div>
         <div className="flex flex-col gap-2">
           <label className="text-black">Player Name</label>
           <input
             type="text"
             name="playerName"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Name"
           />
@@ -75,6 +125,7 @@ function App() {
           <input
             type="date"
             name="dob"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your DOB"
           />
@@ -84,6 +135,7 @@ function App() {
           <input
             type="text"
             name="fatherName"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Father's Name"
           />
@@ -93,6 +145,7 @@ function App() {
           <input
             type="text"
             name="motherName"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Mother's Name"
           />
@@ -101,6 +154,7 @@ function App() {
           <label className="text-black">Permanent Address</label>
           <textarea
             name="permanentAddress"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Address"
           />
@@ -109,6 +163,7 @@ function App() {
           <label className="text-black">Temporary / Hostel Address</label>
           <textarea
             name="temporaryAddress"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Temporary Address"
           />
@@ -117,6 +172,7 @@ function App() {
           <label className="text-black">Select Sex</label>
           <select
             name="sex"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Sex"
           >
@@ -135,6 +191,7 @@ function App() {
           <label className="text-black">Date of Admission</label>
           <input
             type="date"
+            onChange={handleChange}
             name="doadmission"
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Date of Admission"
@@ -145,8 +202,9 @@ function App() {
           <span className="w-full flex flex-row items-center justify-center gap-2">
             &#x20B9;
             <input
-              type="number"
+              type="text"
               name="firstPart"
+              onChange={handleChange}
               className="border-2 border-black/50 p-2 w-full rounded-md focus:outline-none"
               placeholder="Enter Your First Part Fee"
             />
@@ -154,7 +212,8 @@ function App() {
           <span className="w-full flex flex-row items-center justify-center gap-2">
             &#x20B9;
             <input
-              type="number"
+              type="text"
+              onChange={handleChange}
               name="secondPart"
               className="border-2 border-black/50 p-2 rounded-md w-full focus:outline-none"
               placeholder="Enter Your Second Part Fee"
@@ -163,7 +222,8 @@ function App() {
           <span className="w-full flex flex-row items-center justify-center gap-2">
             &#x20B9;
             <input
-              type="number"
+              type="text"
+              onChange={handleChange}
               name="finalSubmission"
               className="border-2 border-black/50 p-2 w-full rounded-md focus:outline-none"
               placeholder="Enter Your Fiinal Submission Amount"
@@ -175,6 +235,7 @@ function App() {
           <input
             type="text"
             name="branch"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Branch"
           />
@@ -184,6 +245,7 @@ function App() {
           <input
             type="text"
             name="coach"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Coach's Name"
           />
@@ -193,6 +255,7 @@ function App() {
           <input
             type="text"
             name="cricketParticular"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter if Any"
           />
@@ -203,6 +266,7 @@ function App() {
             <input
               type="checkbox"
               name="firstDose"
+              onChange={handleChange}
               className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             />
             <label className="text-black"> 1st Dose</label>
@@ -210,6 +274,7 @@ function App() {
           <span className="w-full flex flex-row gap-2">
             <input
               type="checkbox"
+              onChange={handleChange}
               name="secondDose"
               className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             />
@@ -219,6 +284,7 @@ function App() {
             <input
               type="checkbox"
               name="boosterDose"
+              onChange={handleChange}
               className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             />
             <label className="text-black"> Booster Dose</label>
@@ -227,7 +293,8 @@ function App() {
         <div className="flex flex-col gap-2">
           <label className="text-black">Any Corona Case</label>
           <select
-            name="sex"
+            name="coronaCase"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Corona Case"
           >
@@ -247,6 +314,7 @@ function App() {
           <input
             type="number"
             name="aadharNumber"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Aadhar Number"
             required
@@ -257,6 +325,7 @@ function App() {
           <input
             type="text"
             name="fatherOccupation"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Father's Occupation"
             required
@@ -267,42 +336,65 @@ function App() {
           <input
             type="text"
             name="motherOccupation"
+            onChange={handleChange}
             className="border-2 border-black/50 p-2 rounded-md focus:outline-none"
             placeholder="Enter Your Mother's Occupation"
             required
           />
         </div>
-        <label class="text-black" for="aadharCard">
+        <label class="text-black" htmlFor="aadharCard">
           Upload Aadhar Card
         </label>
         <input
           class="block w-full text-sm border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
           aria-describedby="file_input_help"
           id="aadharCard"
+          name="aadhar"
+          accept="image/*,.pdf"
+          onChange={handleAadhar}
           type="file"
         />
-        <label class="text-black" for="birthCertificate">
+        <label class="text-black" htmlFor="birthCertificate">
           Upload Birth Certificate
         </label>
         <input
           class="block w-full text-sm border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
           aria-describedby="file_input_help"
           id="birthCertificate"
+          accept="image/*,.pdf"
+          name="birth"
+          onChange={handleBirth}
           type="file"
         />
-        <label class="text-black" for="tenthMarksheet">
+        <label class="text-black" htmlFor="tenthMarksheet">
           Upload 10th Marksheet
         </label>
         <input
           class="block w-full text-sm border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
           aria-describedby="file_input_help"
+          onChange={handleTenth}
+          accept="image/*,.pdf"
+          name="tenth"
           id="tenthMarksheet"
           type="file"
         />
-        <button className="flex justify-center items-center bg-sky-500/30 px-4 py-2 cursor-pointer rounded-lg m-auto w-[50%]">
-          Submit
+        <button
+          onClick={handleUpload}
+          className={
+            get
+              ? `flex justify-center items-center px-4 bg-green-500/30 px-4 py-2 cursor-pointer rounded-lg m-auto w-[50%]`
+              : `flex justify-center items-center px-4 bg-slate-500/30 px-4 py-2 cursor-pointer rounded-lg m-auto w-[50%]`
+          }
+        >
+          Upload Files
         </button>
       </form>
+      <button
+        onClick={handleSubmit}
+        className="flex justify-center items-center bg-sky-500/30 px-4 py-2 cursor-pointer rounded-lg m-auto w-[49%] mb-5"
+      >
+        Submit
+      </button>
     </div>
   );
 }
